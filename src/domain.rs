@@ -1,26 +1,9 @@
-use crate::error::{AppError, DomainError};
+use crate::error::DomainError;
 use serde::Deserialize;
-use std::{
-    collections::HashMap,
-    path::{Path, PathBuf},
-};
+use std::str::FromStr;
 
 use chrono::{NaiveTime, TimeDelta, Timelike};
 use uuid::Uuid;
-
-//===================================================================================================================================FileContent
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct FileContent {
-    pub repo: HashMap<TaskTitle, Task>,
-}
-
-impl FileContent {
-    pub fn new() -> Result<Self, DomainError> {
-        Ok(Self {
-            repo: HashMap::<TaskTitle, Task>::new(),
-        })
-    }
-}
 
 //===================================================================================================================================TASK
 #[derive(Debug, Hash, Clone, PartialEq, Eq, Deserialize)]
@@ -33,11 +16,11 @@ pub struct Task {
 
 //============================================================================================================TaskID
 #[derive(Debug, Hash, Clone, PartialEq, Eq, Deserialize)]
-pub struct TaskID(String);
+pub struct TaskID(Uuid);
 
 impl TaskID {
-    pub fn from_service(id: &str) -> Result<Self, DomainError> {
-        Ok(TaskID(id.to_string()))
+    pub fn from_dto(id: &str) -> Result<Self, DomainError> {
+        Ok(Self(Uuid::from_str(id)?))
     }
 
     pub fn as_str(&self) -> String {
@@ -52,7 +35,7 @@ pub struct TaskTitle {
 }
 
 impl TaskTitle {
-    pub fn new(raw_title: &str) -> Result<Self, DomainError> {
+    pub fn from_dto(raw_title: &str) -> Result<Self, DomainError> {
         if raw_title.is_empty() || raw_title.chars().all(|c| !c.is_alphabetic()) {
             return Err(DomainError::UnvalidTaskTitleFormat);
         }
@@ -83,16 +66,12 @@ pub struct TimeRecords {
 }
 
 impl TimeRecords {
-    pub fn as_srt(&self) -> String {}
-
-    pub fn new(
+    pub fn from_service(
         effective_duration: Option<TimeDelta>,
         day_week: String,
         date: String,
         starting_time: NaiveTime,
         ending_time: NaiveTime,
-        total_time: TimeDelta,
-        break_time: TimeDelta,
     ) -> Result<Self, DomainError> {
         if ending_time <= starting_time {
             return Err(DomainError::UnvalidTimeRange);
@@ -138,14 +117,7 @@ impl TimeRecords {
 pub struct TaskTag(Option<String>);
 
 impl TaskTag {
-    pub fn from_raw(raw_tag: &str) -> Result<Self, DomainError> {
-        if raw_tag.is_empty()
-            || raw_tag.chars().all(|c| !c.is_alphabetic())
-            || raw_tag.chars().all(|c| c.is_ascii_punctuation())
-        {
-            return Err(DomainError::UnvalidTaskTagFormat);
-        }
-
+    pub fn from_dto(raw_tag: &str) -> Result<Self, DomainError> {
         let tag = raw_tag.trim().to_lowercase().to_string();
 
         Ok(Self(Some(tag)))

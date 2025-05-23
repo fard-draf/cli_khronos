@@ -12,6 +12,9 @@ pub enum AppError {
     #[error("Empty file")]
     EmptyFile,
 
+    #[error("Unable to parsing date")]
+    ErrorParsingDate,
+
     #[error("Unvalid format")]
     UnvalidFormat,
 
@@ -33,14 +36,11 @@ pub enum AppError {
     #[error("Chrono Error")]
     ChronoError(#[from] chrono::ParseError),
 
-    #[error("Uuid Parsing Error")]
-    UuidError(#[from] uuid::Error),
-
     #[error("Domain Error")]
     DomainError(#[from] crate::error::DomainError),
 
     #[error("Serde Error")]
-    SerdeError(#[from] serde),
+    SerdeError(#[from] serde_json::Error),
 }
 
 //=============================================================DOMAIN_ERROR
@@ -49,6 +49,9 @@ pub enum AppError {
 pub enum DomainError {
     #[error("Domain Error")]
     DomainError,
+
+    #[error("Uuid Parsing Error")]
+    UuidError(#[from] uuid::Error),
 
     #[error("Unvalid Path")]
     UnvalidPath,
