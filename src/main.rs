@@ -5,7 +5,11 @@ fn main() -> Result<(), AppError> {
     let mut setup = FileService::new("saved_logged_tasks.json")?;
 
     setup.initializing()?;
-    println!("{:#?}", setup.instance);
+
+    setup.instance.iter().for_each(|(id, task)| {
+        println!("{:?}", task.title);
+        println!("{:?}", task.timeline);
+    });
 
     Ok(())
 }

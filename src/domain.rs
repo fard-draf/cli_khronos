@@ -123,3 +123,26 @@ impl TaskTag {
         Ok(Self(Some(tag)))
     }
 }
+
+//============================================================================================================Sum
+
+#[derive(Debug, Hash, Clone, PartialEq, Eq, Deserialize)]
+pub struct SumTask {
+    pub total_spend_time: TimeDelta,
+    pub longest_session: TimeDelta,
+    pub better_day: Option<String>,
+    pub session_number: i32,
+    pub strokes: i32,
+}
+
+impl SumTask {
+    fn new() -> Self {
+        Self {
+            total_spend_time: TimeDelta::zero(),
+            longest_session: TimeDelta::zero(),
+            better_day: None,
+            session_number: 0,
+            strokes: 0,
+        }
+    }
+}
